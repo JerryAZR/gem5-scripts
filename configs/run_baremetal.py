@@ -4,8 +4,8 @@ from gem5.components.processors.cpu_types import CPUTypes
 from gem5.isas import ISA
 from gem5.resources.resource import obtain_resource
 from gem5.simulate.simulator import Simulator
-from m5.objects import StridePrefetcher
-from my_riscv_board import MyRiscvBoard
+from m5.objects import StridePrefetcher, HelloSimObject, GoodByeSimObject
+from boards.my_riscv_board import MyRiscvBoard
 
 processor = SimpleProcessor(
     cpu_type=CPUTypes.O3,
@@ -16,9 +16,10 @@ processor = SimpleProcessor(
 # Now assemble the RISC-V board.
 board = MyRiscvBoard()
 board.processor = processor
+board.hello = HelloSimObject(num_hellos=5, goodbye_object=GoodByeSimObject())
 
 # Set the workload (downloaded automatically from gem5 resources).
-board.set_se_binary_workload(obtain_resource("riscv-hello"))
+board.set_se_binary_workload(obtain_resource("riscv-matrix-multiply"))
 # board.set_se_binary_workload(obtain_resource("riscv-cch-st"))
 # Create and run the simulation.
 simulator = Simulator(

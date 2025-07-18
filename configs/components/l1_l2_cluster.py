@@ -1,8 +1,13 @@
 from m5.objects import (
     L2XBar,
     SystemXBar,
-    SubSystem
+    SubSystem,
+    BasePrefetcher,
+    StridePrefetcher
 )
+
+from typing import Type
+
 from gem5.components.cachehierarchies.classic.caches.l1icache import L1ICache
 from gem5.components.cachehierarchies.classic.caches.l1dcache import L1DCache
 from gem5.components.cachehierarchies.classic.caches.l2cache import L2Cache
@@ -13,19 +18,20 @@ from typing import Optional
 class L1L2Cluster(SubSystem):
     def __init__(
         self,
-        core: Optional[BaseCPUCore],
-        membus: Optional[SystemXBar],
         l1i_size,
         l1i_assoc,
         l1d_size,
         l1d_assoc,
         l2_size,
-        l2_assoc
+        l2_assoc,
+        core: Optional[BaseCPUCore],
+        membus: Optional[SystemXBar],
+        l2_pf_cls: Type[BasePrefetcher] = StridePrefetcher
     ):
         super().__init__()
         self.l1i_cache  = L1ICache(size=l1i_size, assoc=l1i_assoc)
         self.l1d_cache  = L1DCache(size=l1d_size, assoc=l1d_assoc)
-        self.l2_cache   = L2Cache(size=l2_size, assoc=l2_assoc)
+        self.l2_cache   = L2Cache(size=l2_size, assoc=l2_assoc, PrefetcherCls=l2_pf_cls)
         self.iptw_cache = MMUCache(size="8KiB", writeback_clean=False)
         self.dptw_cache = MMUCache(size="8KiB", writeback_clean=False)
         self.l2_bus = L2XBar()
